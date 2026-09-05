@@ -30,7 +30,6 @@ export const createProblem = async (req, res) => {
           .json({ error: `Language ${language} is not supported` });
       }
 
-      //
       const submissions = testcases.map(({ input, output }) => ({
         source_code: solutionCode,
         language_id: languageId,
@@ -46,19 +45,17 @@ export const createProblem = async (req, res) => {
 
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
+
         console.log("Result-----", result);
-        // console.log(
-        //   `Testcase ${i + 1} and Language ${language} ----- result ${JSON.stringify(result.status.description)}`
-        // );
-       if (result.status.id !== 3) {
-  console.log("Judge0 Result:");
-  console.log(JSON.stringify(result, null, 2));
 
-  return res.status(400).json({
-    error: `Testcase ${i + 1} failed for language ${language}`,
-    result
-  });
+        if (result.status.id !== 3) {
+          console.log("Judge0 Result:");
+          console.log(JSON.stringify(result, null, 2));
 
+          return res.status(400).json({
+            error: `Testcase ${i + 1} failed for language ${language}`,
+            result,
+          });
         }
       }
     }
@@ -85,6 +82,7 @@ export const createProblem = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
     return res.status(500).json({
       error: error.message,
     });
@@ -92,31 +90,56 @@ export const createProblem = async (req, res) => {
 };
 
 
+// ============================================
+// GET ALL PROBLEMS
+// ============================================
+
 export const getAllProblems = async (req, res) => {
-try { 
-    const problems = await db.problem.findMany({ 
-      include: { 
+  try {
+    const problems = await db.problem.findMany({
+      include: {
         user: true,
-      }, 
-    }); 
- 
-    return res.status(200).json({ 
-      success: true, 
-      message: "Problems Fetched Successfully", 
-      problems, 
-    }); 
- 
-  } catch (error) { 
-    console.error("GET ALL PROBLEMS ERROR:"); 
-    console.error(error); 
- 
-    return res.status(500).json({ 
-      error: "Error While Fetching Problems", 
-      details: error.message, 
-    }); 
-  } 
+
+        // Check whether the current logged-in user
+        // has solved each problem
+        solvedBy: {
+          where: {
+            userId: req.user.id,
+          },
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    // Add a simple solved: true/false property
+    // so the frontend can easily display the tick
+    const problemsWithSolvedStatus = problems.map((problem) => ({
+      ...problem,
+      solved: problem.solvedBy.length > 0,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Problems Fetched Successfully",
+      problems: problemsWithSolvedStatus,
+    });
+  } catch (error) {
+    console.error("GET ALL PROBLEMS ERROR:");
+    console.error(error);
+
+    return res.status(500).json({
+      error: "Error While Fetching Problems",
+      details: error.message,
+    });
+  }
 };
 
+
+// ============================================
+// GET PROBLEM BY ID
+// ============================================
 
 export const getProblemById = async (req, res) => {
   const { id } = req.params;
@@ -129,7 +152,9 @@ export const getProblemById = async (req, res) => {
     });
 
     if (!problem) {
-      return res.status(404).json({ error: "Problem not found." });
+      return res.status(404).json({
+        error: "Problem not found.",
+      });
     }
 
     return res.status(200).json({
@@ -139,6 +164,7 @@ export const getProblemById = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
     return res.status(500).json({
       error: "Error While Fetching Problem by id",
     });
@@ -146,27 +172,46 @@ export const getProblemById = async (req, res) => {
 };
 
 
-export const updateProblem = async (req, res) => {}
+// ============================================
+// UPDATE PROBLEM
+// ============================================
 
+export const updateProblem = async (req, res) => {};
+
+
+// ============================================
+// DELETE PROBLEM
+// ============================================
 
 export const deleteProblem = async (req, res) => {
-   const { id } = req.params;
+  const { id } = req.params;
 
   try {
-    const problem = await db.problem.findUnique({ where: { id } });
+    const problem = await db.problem.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!problem) {
-      return res.status(404).json({ error: "Problem Not found" });
+      return res.status(404).json({
+        error: "Problem Not found",
+      });
     }
 
-    await db.problem.delete({ where: { id } });
+    await db.problem.delete({
+      where: {
+        id,
+      },
+    });
 
     res.status(200).json({
       success: true,
       message: "Problem deleted Successfully",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
+
     return res.status(500).json({
       error: "Error While deleting the problem",
     });
@@ -174,34 +219,40 @@ export const deleteProblem = async (req, res) => {
 };
 
 
+// ============================================
+// GET ALL PROBLEMS SOLVED BY USER
+// ============================================
+
 export const getAllProblemsSolvedByUser = async (req, res) => {
-   try {
+  try {
     const problems = await db.problem.findMany({
-      where:{
-        solvedBy:{
-          some:{
-            userId:req.user.id
-          }
-        }
+      where: {
+        solvedBy: {
+          some: {
+            userId: req.user.id,
+          },
+        },
       },
-      include:{
-        solvedBy:{
-          where:{
-            userId:req.user.id
-          }
-        }
-      }
-    })
+
+      include: {
+        solvedBy: {
+          where: {
+            userId: req.user.id,
+          },
+        },
+      },
+    });
 
     res.status(200).json({
-      success:true,
-      message:"Problems fetched successfully",
-      problems
-    })
+      success: true,
+      message: "Problems fetched successfully",
+      problems,
+    });
   } catch (error) {
-    console.error("Error fetching problems :" , error);
-    res.status(500).json({error:"Failed to fetch problems"})
+    console.error("Error fetching problems:", error);
+
+    res.status(500).json({
+      error: "Failed to fetch problems",
+    });
   }
 };
-
-

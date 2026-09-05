@@ -1,5 +1,3 @@
-// 
-
 import {
     submitBatch,
     pollBatchResults,
