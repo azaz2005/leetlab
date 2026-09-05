@@ -29,13 +29,15 @@ const Navbar = ()=>{
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar flex flex-row ">
               <div className="w-10 rounded-full ">
                 <img
-                  src={
-                    authUser?.image ||
-                    "https://avatar.iran.liara.run/public/boy"
-                  }
-                  alt="User Avatar"
-                  className="object-cover"
-                />
+          src={
+            authUser?.image ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              authUser?.name || "User"
+            )}&background=0D8ABC&color=fff&bold=true`
+          }
+          alt={authUser?.name || "User Avatar"}
+          className="w-10 h-10 rounded-full object-cover"
+        />
               </div>
            
             </label>

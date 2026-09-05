@@ -140,16 +140,38 @@ export const logout = async (req , res)=>{
 }
 
 export const check = async (req , res)=>{
-    try {
-        res.status(200).json({
-            success:true,
-            message:"User authenticated successfully",
-            user:req.user
+     try {
+        const user = await db.user.findUnique({
+            where: {
+                id: req.user.id
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                image: true,
+                createdAt: true
+            }
         });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "User authenticated successfully",
+            user
+        });
+
     } catch (error) {
         console.error("Error checking user:", error);
         res.status(500).json({
-            error:"Error checking user"
-        })
+            error: "Error checking user"
+        });
     }
 }
