@@ -38,7 +38,7 @@ const SignUpPage = () => {
   const onSubmit = async (data)=>{
    try {
     await signup(data)
-    console.log("signup data" , data)
+    // console.log("signup data" , data)
    } catch (error) {
      console.error("SignUp failed:", error);
    }

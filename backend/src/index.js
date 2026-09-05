@@ -15,7 +15,9 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 const allowedOrigins = [
-  "http://localhost:5173",
+  "http://localhost:5174",
+    "http://localhost:5173",
+
   "https://azaz2005.github.io",
 ];
 
