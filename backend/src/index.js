@@ -12,6 +12,7 @@ import playlistRoutes from "./routes/playlist.routes.js";
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
 app.use(
     cors({
@@ -31,7 +32,13 @@ app.use("/api/v1/problems", problemRoutes);
 app.use("/api/v1/execute-code",executionRoute );
 app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "LeetLab backend is running",
+  });
+});
 
-app.listen(8080, () => {
-  console.log("Server is running on port 8080");
+app.listen(PORT, () => {
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });
