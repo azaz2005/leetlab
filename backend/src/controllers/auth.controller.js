@@ -35,12 +35,12 @@ export const register = async (req , res)=>{
             expiresIn:"7d"
         })
 
-        res.cookie("jwt" , token , {
-            httpOnly:true,
-            sameSite:"strict",
-            secure:process.env.NODE_ENV !== "development",
-            maxAge:1000 * 60 * 60 * 24 * 7 // 7 days
-        })
+        res.cookie("jwt", token, {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+});
 
         res.status(201).json({
             success:true,
@@ -90,12 +90,12 @@ export const login = async (req , res)=>{
             expiresIn:"7d"
         })
 
-        res.cookie("jwt" , token , {
-            httpOnly:true,
-            sameSite:"strict",
-            secure:process.env.NODE_ENV !== "development",
-            maxAge:1000 * 60 * 60 * 24 * 7 // 7 days
-        })
+        res.cookie("jwt", token, {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+});
 
         res.status(200).json({
             success:true,
