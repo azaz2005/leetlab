@@ -13,85 +13,53 @@ export const createProblem = async (req, res) => {
     tags,
     examples,
     constraints,
+    hints,
+    editorial,
     testcases,
     codeSnippets,
     referenceSolutions,
   } = req.body;
 
   try {
-
-    const normalizeOutput = (output) => {
-      return String(output ?? "")
-        .trim()
-        .replace(/\r\n/g, "\n")
-        .replace(/[ \t]+/g, " ")
-        .split("\n")
-        .map((line) => line.trim())
-        .join("\n");
-    };
-
-
-    for (const [language, solutionCode] of Object.entries(
-      referenceSolutions
-    )) {
+    for (const [language, solutionCode] of Object.entries(referenceSolutions)) {
       const languageId = getJudge0LanguageId(language);
 
       if (!languageId) {
-        return res.status(400).json({
-          error: `Language ${language} is not supported`,
-        });
+        return res
+          .status(400)
+          .json({ error: `Language ${language} is not supported` });
       }
 
-
-      const submissions = testcases.map(({ input }) => ({
+      const submissions = testcases.map(({ input, output }) => ({
         source_code: solutionCode,
         language_id: languageId,
         stdin: input,
+        expected_output: output,
       }));
 
       const submissionResults = await submitBatch(submissions);
 
-      const tokens = submissionResults.map((result) => result.token);
+      const tokens = submissionResults.map((res) => res.token);
 
       const results = await pollBatchResults(tokens);
 
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
 
-        console.log(
-          `Result for ${language} - Testcase ${i + 1}:`,
-          JSON.stringify(result, null, 2)
-        );
-
+        console.log("Result-----", result);
 
         if (result.status.id !== 3) {
-          return res.status(400).json({
-            error: `Reference solution failed for testcase ${i + 1
-              } in ${language}`,
-            status: result.status,
-            stdout: result.stdout,
-            stderr: result.stderr,
-            compile_output: result.compile_output,
-          });
-        }
-
-
-        const actualOutput = normalizeOutput(result.stdout);
-        const expectedOutput = normalizeOutput(testcases[i].output);
-
-        if (actualOutput !== expectedOutput) {
-          console.log("Expected:", JSON.stringify(expectedOutput));
-          console.log("Actual:", JSON.stringify(actualOutput));
+          console.log("Judge0 Result:");
+          console.log(JSON.stringify(result, null, 2));
 
           return res.status(400).json({
             error: `Testcase ${i + 1} failed for language ${language}`,
-            expected: expectedOutput,
-            actual: actualOutput,
             result,
           });
         }
       }
     }
+
     const newProblem = await db.problem.create({
       data: {
         title,
@@ -100,6 +68,8 @@ export const createProblem = async (req, res) => {
         tags,
         examples,
         constraints,
+        hints,
+        editorial,
         testcases,
         codeSnippets,
         referenceSolutions,
@@ -112,6 +82,7 @@ export const createProblem = async (req, res) => {
       message: "Problem Created Successfully",
       problem: newProblem,
     });
+
   } catch (error) {
     console.log(error);
 
@@ -190,7 +161,7 @@ export const getProblemById = async (req, res) => {
 
     return res.status(200).json({
       sucess: true,
-      message: "Message Created Successfully",
+      message: "problem  Created Successfully",
       problem,
     });
   } catch (error) {
