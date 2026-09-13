@@ -20,10 +20,10 @@ const PlaylistDetailsPage = () => {
   } = usePlaylistStore();
 
   useEffect(() => {
-    if (playlistId) {
-      getPlaylistDetails(playlistId);
-    }
-  }, [playlistId]);
+    if (!playlistId) return;
+
+    getPlaylistDetails(playlistId);
+  }, [playlistId, getPlaylistDetails]);
 
   const handleRemoveProblem = async (problemId) => {
     const confirmed = window.confirm(
@@ -35,6 +35,7 @@ const PlaylistDetailsPage = () => {
     await removeProblemFromPlaylist(playlistId, [problemId]);
   };
 
+  // Loading state
   if (isLoading && !currentPlaylist) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -43,6 +44,7 @@ const PlaylistDetailsPage = () => {
     );
   }
 
+  // Playlist not found
   if (!currentPlaylist) {
     return (
       <div className="w-full max-w-5xl mx-auto px-4 py-10">
@@ -69,7 +71,8 @@ const PlaylistDetailsPage = () => {
     );
   }
 
-  const problems = currentPlaylist.problems || [];
+  // Get latest problems from current playlist
+  const problems = currentPlaylist?.problems || [];
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
@@ -87,11 +90,13 @@ const PlaylistDetailsPage = () => {
       <div className="bg-base-200 border border-gray-700 rounded-2xl p-6 mb-8">
 
         <div className="flex items-start gap-4">
+
           <div className="p-3 rounded-xl bg-primary/20">
             <BookOpen className="w-7 h-7 text-primary" />
           </div>
 
-          <div>
+          <div className="flex-1">
+
             <h1 className="text-3xl font-bold text-white">
               {currentPlaylist.name}
             </h1>
@@ -104,13 +109,14 @@ const PlaylistDetailsPage = () => {
               {problems.length}{" "}
               {problems.length === 1 ? "Problem" : "Problems"}
             </p>
+
           </div>
         </div>
-
       </div>
 
       {/* Problems */}
       {problems.length === 0 ? (
+
         <div className="bg-base-200 border border-gray-700 rounded-2xl text-center py-20 px-6">
 
           <BookOpen className="mx-auto w-16 h-16 text-gray-500 mb-4" />
@@ -131,12 +137,17 @@ const PlaylistDetailsPage = () => {
           </Link>
 
         </div>
+
       ) : (
+
         <div className="space-y-4">
 
           {problems.map((item) => {
-            const problem = item.problem;
 
+            // Problem relation returned by backend
+            const problem = item?.problem;
+
+            // Safety check
             if (!problem) return null;
 
             return (
@@ -170,17 +181,17 @@ const PlaylistDetailsPage = () => {
                       </span>
 
                       {/* Tags */}
-                      {problem.tags?.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 rounded-full text-sm border border-gray-600 text-gray-300"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {Array.isArray(problem.tags) &&
+                        problem.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-3 py-1 rounded-full text-sm border border-gray-600 text-gray-300"
+                          >
+                            {tag}
+                          </span>
+                        ))}
 
                     </div>
-
                   </div>
 
                   {/* Actions */}
@@ -201,6 +212,7 @@ const PlaylistDetailsPage = () => {
                         handleRemoveProblem(problem.id)
                       }
                       className="btn btn-error btn-outline"
+                      disabled={isLoading}
                     >
                       <Trash2 className="w-4 h-4" />
                       Remove
@@ -209,7 +221,6 @@ const PlaylistDetailsPage = () => {
                   </div>
 
                 </div>
-
               </div>
             );
           })}

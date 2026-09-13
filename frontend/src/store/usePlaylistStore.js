@@ -34,50 +34,89 @@ export const usePlaylistStore = create((set, get) => ({
   getAllPlaylists: async () => {
     try {
       set({ isLoading: true });
+
       const response = await axiosInstance.get("/playlist");
-      set({ playlists: response.data.playLists });
+
+      const playlists = response.data?.playLists || [];
+
+      set({
+        playlists,
+      });
     } catch (error) {
       console.error("Error fetching playlists:", error);
-      toast.error("Failed to fetch playlists");
+      toast.error(
+        error.response?.data?.error || "Failed to fetch playlists"
+      );
+
+      set({
+        playlists: [],
+      });
     } finally {
       set({ isLoading: false });
     }
   },
+getPlaylistDetails: async (playlistId) => {
+  try {
+    set({ isLoading: true });
 
-  getPlaylistDetails: async (playlistId) => {
-    try {
-      set({ isLoading: true });
-      const response = await axiosInstance.get(`/playlist/${playlistId}`);
-      set({ currentPlaylist: response.data.playList });
-    } catch (error) {
-      console.error("Error fetching playlist details:", error);
-      toast.error("Failed to fetch playlist details");
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+    const response = await axiosInstance.get(
+      `/playlist/${playlistId}`
+    );
 
+    set({
+      currentPlaylist: response.data.playList,
+    });
+  } catch (error) {
+    console.error("Error fetching playlist details:", error);
+
+    toast.error(
+      error.response?.data?.error ||
+      "Failed to fetch playlist details"
+    );
+
+    set({
+      currentPlaylist: null,
+    });
+  } finally {
+    set({ isLoading: false });
+  }
+},
   addProblemToPlaylist: async (playlistId, problemIds) => {
     try {
       set({ isLoading: true });
-      await axiosInstance.post(`/playlist/${playlistId}/add-problem`, {
-        problemIds,
-      });
+
+      await axiosInstance.post(
+        `/playlist/${playlistId}/add-problem`,
+        {
+          problemIds,
+        }
+      );
 
       toast.success("Problem added to playlist");
 
-      // Refresh the playlist details
+      // If playlist details are currently open,
+      // refresh them immediately.
       if (get().currentPlaylist?.id === playlistId) {
         await get().getPlaylistDetails(playlistId);
       }
+
+      return true;
     } catch (error) {
-      console.error("Error adding problem to playlist:", error);
-      toast.error("Failed to add problem to playlist");
+      console.error(
+        "Error adding problem to playlist:",
+        error
+      );
+
+      toast.error(
+        error.response?.data?.error ||
+        "Failed to add problem to playlist"
+      );
+
+      return false;
     } finally {
       set({ isLoading: false });
     }
   },
-
   removeProblemFromPlaylist: async (playlistId, problemIds) => {
     try {
       set({ isLoading: true });

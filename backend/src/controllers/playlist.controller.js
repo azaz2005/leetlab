@@ -79,40 +79,88 @@ export const getPlayListDetails = async (req, res) => {
 
 export const addProblemToPlaylist = async (req, res) => {
   const { playlistId } = req.params;
-  const { problemIds } = req.body; // Accept an array of problem IDs
+  const { problemIds } = req.body;
 
   try {
-    // Ensure problemIds is an array
+    // Validate problemIds
     if (!Array.isArray(problemIds) || problemIds.length === 0) {
-      return res.status(400).json({ error: "Invalid or missing problemIds" });
+      return res.status(400).json({
+        error: "Invalid or missing problemIds",
+      });
     }
 
-    console.log(
-      problemIds.map((problemId) => ({
-        playlistId,
-        problemId,
-      }))
-    );
-
-    // Create records for each problem in the playlist
-    const problemsInPlaylist = await db.problemInPlaylist.createMany({
-      data: problemIds.map((problemId) => ({
-        playListId: playlistId, // ✅ match your Prisma field name exactly
-        problemId,
-      })),
+    // Make sure playlist belongs to logged-in user
+    const playlist = await db.playlist.findFirst({
+      where: {
+        id: playlistId,
+        userId: req.user.id,
+      },
     });
 
-    res.status(201).json({
+    if (!playlist) {
+      return res.status(404).json({
+        error: "Playlist not found",
+      });
+    }
+
+    // Make sure all problems actually exist
+    const problems = await db.problem.findMany({
+      where: {
+        id: {
+          in: problemIds,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const existingProblemIds = new Set(
+      problems.map((problem) => problem.id)
+    );
+
+    const invalidProblemIds = problemIds.filter(
+      (problemId) => !existingProblemIds.has(problemId)
+    );
+
+    if (invalidProblemIds.length > 0) {
+      return res.status(404).json({
+        error: "One or more problems were not found",
+      });
+    }
+
+    // Remove duplicate IDs from request
+    const uniqueProblemIds = [...new Set(problemIds)];
+
+    // Add problems to playlist
+    const problemsInPlaylist =
+      await db.problemInPlaylist.createMany({
+        data: uniqueProblemIds.map((problemId) => ({
+          playListId: playlistId,
+          problemId,
+        })),
+
+        // Prevent 500 when problem is already in playlist
+        skipDuplicates: true,
+      });
+
+    return res.status(201).json({
       success: true,
       message: "Problems added to playlist successfully",
       problemsInPlaylist,
     });
   } catch (error) {
-    console.error("Error adding problems to playlist:", error.message);
-    res.status(500).json({ error: "Failed to add problems to playlist" });
+    console.error(
+      "Error adding problems to playlist:",
+      error
+    );
+
+    return res.status(500).json({
+      error: "Failed to add problems to playlist",
+      details: error.message,
+    });
   }
 };
-
 export const deletePlayList = async (req, res) => {
   const { playlistId } = req.params;
 
