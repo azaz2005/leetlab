@@ -18,7 +18,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://azaz2005.github.io",
-  "https://leetlab.azaz.co.in",
+  "https://codexa.azaz.co.in",
 ];
 app.use(
   cors({
