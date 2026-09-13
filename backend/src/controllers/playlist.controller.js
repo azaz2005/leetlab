@@ -146,7 +146,7 @@ export const removeProblemFromPlaylist = async (req, res) => {
 
     const deletedProblem = await db.problemInPlaylist.deleteMany({
       where: {
-        playlistId,
+        playListId: playlistId,
         problemId: {
           in: problemIds,
         },

@@ -23,16 +23,16 @@ const AddToPlaylistModal = ({ isOpen, onClose, problemId }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-base-100 rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center p-4 border-b border-base-300">
+    <div className="modal-backdrop fixed inset-0 flex items-center justify-center z-50 p-4">
+      <div className="surface page-enter rounded-xl shadow-2xl w-full max-w-md">
+        <div className="flex justify-between items-center p-5 border-b border-white/10">
           <h3 className="text-xl font-bold">Add to Playlist</h3>
           <button onClick={onClose} className="btn btn-ghost btn-sm btn-circle">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="form-control">
             <label className="label">
               <span className="label-text font-medium">Select Playlist</span>

@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-
+import PlaylistPage from "./page/PlaylistPage";
 import HomePage from "./page/HomePage";
 import LoginPage from "./page/LoginPage";
 import SignUpPage from "./page/SignUpPage";
 import ProfilePage from "./page/ProfilePage";
-
+import PlaylistDetailsPage from "./page/PlaylistDetailsPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { Loader } from "lucide-react";
 
@@ -95,6 +95,28 @@ const App = () => {
           element={
             authUser ? (
               <ProblemPage />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+         {/* Playlists */}
+        <Route
+          path="/playlists"
+          element={
+            authUser ? (
+              <PlaylistPage />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+         {/* Playlist Details */}
+        <Route
+          path="/playlists/:playlistId"
+          element={
+            authUser ? (
+              <PlaylistDetailsPage />
             ) : (
               <Navigate to="/login" />
             )

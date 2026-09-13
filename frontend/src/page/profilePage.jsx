@@ -71,7 +71,7 @@ const ProfilePage = () => {
           </h1>
 
           <p className="mt-2 text-base-content/60">
-            View your LeetLab profile and coding progress
+            View your Codexa profile and coding progress
           </p>
         </div>
 

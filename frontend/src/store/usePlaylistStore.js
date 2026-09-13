@@ -81,8 +81,8 @@ export const usePlaylistStore = create((set, get) => ({
   removeProblemFromPlaylist: async (playlistId, problemIds) => {
     try {
       set({ isLoading: true });
-      await axiosInstance.post(`/playlist/${playlistId}/remove-problems`, {
-        problemIds,
+      await axiosInstance.delete(`/playlist/${playlistId}/remove-problem`, {
+        data: { problemIds },
       });
 
       toast.success("Problem removed from playlist");

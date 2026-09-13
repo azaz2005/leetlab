@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send("Hello Guys welcome to leetlab🔥");
+  res.send("Hello Guys welcome to Codexa🔥");
 });
 
 app.use("/api/v1/auth", authRoutes);
@@ -47,7 +47,7 @@ app.use("/api/v1/playlist", playlistRoutes);
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "LeetLab backend is running",
+    message: "Codexa backend is running",
   });
 });
 

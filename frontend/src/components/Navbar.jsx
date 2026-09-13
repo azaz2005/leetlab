@@ -1,27 +1,27 @@
 import React from "react"
-import { User, Code, LogOut } from "lucide-react";
+import { User, Code, LogOut, List } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Link } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 
 
 
-const Navbar = ()=>{
+const Navbar = () => {
 
-    const {authUser} = useAuthStore()
+  const { authUser } = useAuthStore()
 
-    // console.log("AUTH_USER",authUser)
+  // console.log("AUTH_USER",authUser)
 
-    return (
-     <nav className="sticky top-0 z-50 w-full py-5">
+  return (
+    <nav className="sticky top-0 z-50 w-full py-5">
       <div className="flex w-full justify-between mx-auto max-w-4xl bg-black/15 shadow-lg shadow-neutral-600/5 backdrop-blur-lg border border-gray-200/10 p-4 rounded-2xl">
         {/* Logo Section */}
         <Link to="/" className="flex items-center gap-3 cursor-pointer">
-<img
-  src={`${import.meta.env.BASE_URL}leetlab.svg`}
-  className="h-18 w-18 bg-primary/20 text-primary border-none px-2 py-2 rounded-full"
-/>          <span className="text-lg md:text-2xl font-bold tracking-tight text-white hidden md:block">
-          Leetlab 
+          <img
+            src={`${import.meta.env.BASE_URL}leetlab.svg`}
+            className="h-18 w-18 bg-primary/20 text-primary border-none px-2 py-2 rounded-full"
+          />          <span className="text-lg md:text-2xl font-bold tracking-tight text-white hidden md:block">
+            Codexa
           </span>
         </Link>
 
@@ -31,33 +31,42 @@ const Navbar = ()=>{
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar flex flex-row ">
               <div className="w-10 rounded-full ">
                 <img
-          src={
-            authUser?.image ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              authUser?.name || "User"
-            )}&background=0D8ABC&color=fff&bold=true`
-          }
-          alt={authUser?.name || "User Avatar"}
-          className="w-10 h-10 rounded-full object-cover"
-        />
+                  src={
+                    authUser?.image ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      authUser?.name || "User"
+                    )}&background=0D8ABC&color=fff&bold=true`
+                  }
+                  alt={authUser?.name || "User Avatar"}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
               </div>
-           
+
             </label>
             <ul
               tabIndex={0}
               className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 space-y-3"
             >
               {/* Admin Option */}
-             
+
 
               {/* Common Options */}
               <li>
                 <p className="text-base font-semibold">
-                 
+
                   {authUser?.name}
 
                 </p>
                 <hr className="border-gray-200/10" />
+              </li>
+              <li>
+                <Link
+                  to="/playlists"
+                  className="hover:bg-primary hover:text-white text-base font-semibold"
+                >
+                  <List className="w-4 h-4 mr-2" />
+                  My Playlists
+                </Link>
               </li>
               <li>
                 <Link
@@ -90,7 +99,7 @@ const Navbar = ()=>{
         </div>
       </div>
     </nav>
-    )
+  )
 }
 
 
